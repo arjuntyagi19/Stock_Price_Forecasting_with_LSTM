@@ -20,7 +20,7 @@ if st.button('Predict'):
     # Download stock data
     df = pd.DataFrame(yf.download(user_input, start=start, end=end))
 
-    st.subheader('Data from 2010 to 2024')
+    st.subheader('Data from 2010 to today')
     st.write(df.describe())
 
     # Display the current closing price
