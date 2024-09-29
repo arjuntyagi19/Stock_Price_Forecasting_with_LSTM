@@ -77,7 +77,7 @@ y_predicted = scaler.inverse_transform(np.column_stack((y_predicted, np.zeros(le
 y_test = scaler.inverse_transform(np.column_stack((y_test, np.zeros(len(y_test)))))[:, 0]
 
 # Predicted vs Original
-st.subheader('Predicted vs Original')
+st.subheader('Predicted vs Original using LSTM')
 fig2 = plt.figure(figsize=(12, 6))
 plt.plot(y_test, 'b', label='Original Price')
 plt.plot(y_predicted, 'r', label='Predicted Price')
