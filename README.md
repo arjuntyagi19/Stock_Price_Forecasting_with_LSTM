@@ -19,24 +19,29 @@ The application generates several key visualizations:
 
 1. **Closing Price vs Time Chart**:
    - Displays the historical closing prices of the selected stock.
+     
    ![Closing Price vs Time](images/closing_price_vs_time.png)  <!-- Update the image path accordingly -->
 
 2. **Closing Price with 100-Day Moving Average (MA)**:
    - Visualizes the stock's closing price alongside its 100-day moving average, helping to identify trends.
+     
    ![Closing Price with 100MA](images/closing_price_with_100ma.png)  <!-- Update the image path accordingly -->
 
 3. **Closing Price with 100-Day and 200-Day Moving Averages (MA)**:
    - Compares the closing price with both the 100-day and 200-day moving averages.
+     
    ![Closing Price with 100MA & 200MA](images/closing_price_with_100_200ma.png)  <!-- Update the image path accordingly -->
 
 4. **Predicted vs Original Prices using LSTM**:
    - Shows a comparison between the original and predicted stock prices to evaluate model performance.
+     
    ![Predicted vs Original](images/predicted_vs_original.png)
 
     note-the x-axis represents days of stock price data used in testing, where each point corresponds to a day in the historical price dataset.  <!-- Update the image path accordingly -->
 
 5. **Next 10 Days Price Prediction**:
    - Displays the predicted stock prices for the next 10 business days based on the last 100 days of data.
+     
    ![Next 10 Days Price Prediction](images/next_10_days_prediction.png)  <!-- Update the image path accordingly -->
 
 
