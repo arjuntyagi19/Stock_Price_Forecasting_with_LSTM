@@ -31,7 +31,9 @@ The application generates several key visualizations:
 
 4. **Predicted vs Original Prices using LSTM**:
    - Shows a comparison between the original and predicted stock prices to evaluate model performance.
-   ![Predicted vs Original](images/predicted_vs_original.png)  <!-- Update the image path accordingly -->
+   ![Predicted vs Original](images/predicted_vs_original.png)
+
+    note-the x-axis represents days of stock price data used in testing, where each point corresponds to a day in the historical price dataset.  <!-- Update the image path accordingly -->
 
 5. **Next 10 Days Price Prediction**:
    - Displays the predicted stock prices for the next 10 business days based on the last 100 days of data.
