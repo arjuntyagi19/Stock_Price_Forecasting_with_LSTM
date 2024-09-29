@@ -14,6 +14,9 @@ This project leverages an LSTM model to forecast stock prices using historical d
 
 The application generates several key visualizations:
 
+![home page](images/first_look.png)
+
+
 1. **Closing Price vs Time Chart**:
    - Displays the historical closing prices of the selected stock.
    ![Closing Price vs Time](images/closing_price_vs_time.png)  <!-- Update the image path accordingly -->
@@ -34,9 +37,4 @@ The application generates several key visualizations:
    - Displays the predicted stock prices for the next 10 business days based on the last 100 days of data.
    ![Next 10 Days Price Prediction](images/next_10_days_prediction.png)  <!-- Update the image path accordingly -->
 
-## How to Run the Project
 
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/your_username/your_repository.git
-   cd your_repository
