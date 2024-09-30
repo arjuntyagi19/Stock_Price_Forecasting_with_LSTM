@@ -13,7 +13,7 @@ start = '2010-01-01'
 end = datetime.now().strftime('%Y-%m-%d')  # Get today's date
 
 st.title('Stock Price Forecasting with LSTM Model (AIBF project)')
-user_input = st.text_input('Enter stock name (ticker)', 'TATASTEEL.NS')
+user_input = st.text_input('Enter any stock name (ticker)', 'TATASTEEL.NS')
 
 # Add an "Enter" button after the input field
 if st.button('Predict'):
