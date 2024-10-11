@@ -116,5 +116,3 @@ if st.button('Predict'):
     st.pyplot(fig3)
 
 
-
-in fig 2 where the orinal grpah vs lstm graph is shown the x axis is taking previous 1000 days only, how do i change the number of days of x axis
