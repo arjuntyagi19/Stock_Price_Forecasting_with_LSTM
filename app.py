@@ -78,21 +78,12 @@ if st.button('Predict'):
     y_predicted = scaler.inverse_transform(np.column_stack((y_predicted, np.zeros(len(y_predicted)))))[:, 0]
     y_test = scaler.inverse_transform(np.column_stack((y_test, np.zeros(len(y_test)))))[:, 0]
 
-    # Adjust x-axis to show proper number of days (e.g., last 500 days)
-    x_axis_days = len(y_test)  # Total number of testing days
-    days_to_display = 500  # You can adjust this value to show more/less days
-
-    # Generate x-axis labels based on the number of days
-    x_values = range(x_axis_days - days_to_display, x_axis_days)  # Last 'days_to_display' days
-
     # Predicted vs Original
     st.subheader('Predicted vs Original using LSTM')
     fig2 = plt.figure(figsize=(12, 6))
-
-    # Plot only the last 'days_to_display' days
-    plt.plot(x_values, y_test[-days_to_display:], 'b', label='Original Price')
-    plt.plot(x_values, y_predicted[-days_to_display:], 'r', label='Predicted Price')
-    plt.xlabel('Time (Days)')
+    plt.plot(y_test, 'b', label='Original Price')
+    plt.plot(y_predicted, 'r', label='Predicted Price')
+    plt.xlabel('Time')
     plt.ylabel("Price")
     plt.legend()
     st.pyplot(fig2)
@@ -123,3 +114,7 @@ if st.button('Predict'):
     plt.title('Next 10 Days Price Prediction')
     plt.legend()
     st.pyplot(fig3)
+
+
+
+in fig 2 where the orinal grpah vs lstm graph is shown the x axis is taking previous 1000 days only, how do i change the number of days of x axis
