@@ -1,12 +1,17 @@
 # Import necessary libraries
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import yfinance as yf
-from keras.models import load_model
 import streamlit as st
+from keras.models import load_model
 from datetime import datetime
-from sklearn.preprocessing import MinMaxScaler
+from pyspark.sql import SparkSession
+from pyspark.ml.feature import MinMaxScaler
+from pyspark.ml.linalg import Vectors
+from pyspark.sql.functions import col
+
+# Create Spark session
+spark = SparkSession.builder.appName("StockPriceForecasting").getOrCreate()
 
 # Set the start date and current end date
 start = '2010-01-01'
@@ -18,17 +23,13 @@ user_input = st.text_input('Enter any stock name (ticker)', 'TATASTEEL.NS')
 # Add an "Enter" button after the input field
 if st.button('Predict'):
     # Download stock data
-    try:
-        df = pd.DataFrame(yf.download(user_input, start=start, end=end))
-        if df.empty:
-            st.error('No data found for the specified ticker. Please check the ticker symbol.')
-            st.stop()
-    except Exception as e:
-        st.error(f"Error fetching data: {e}")
-        st.stop()
-
+    df = yf.download(user_input, start=start, end=end)
+    
+    # Convert to PySpark DataFrame
+    df_spark = spark.createDataFrame(df.reset_index())
+    
     st.subheader('Data from 2010 to today')
-    st.write(df.describe())
+    st.write(df.describe())  # Display descriptive stats in Streamlit
 
     # Display the current closing price
     current_close = df['Close'].iloc[-1]
@@ -37,59 +38,73 @@ if st.button('Predict'):
     # Visualizations
     st.subheader('Closing Price vs Time chart')
     fig = plt.figure(figsize=(12, 6))
-    plt.plot(df.Close)
+    plt.plot(df['Close'])
     st.pyplot(fig)
 
     st.subheader('Closing Price vs Time chart with 100MA (moving average)')
-    ma100 = df.Close.rolling(100).mean()
+    ma100 = df['Close'].rolling(100).mean()
     fig = plt.figure(figsize=(12, 6))
-    plt.plot(ma100)
-    plt.plot(df.Close)
+    plt.plot(ma100, label='100MA')
+    plt.plot(df['Close'], label='Close Price')
+    plt.legend()
     st.pyplot(fig)
 
     st.subheader('Closing Price vs Time chart with 100MA & 200MA (moving average)')
-    ma200 = df.Close.rolling(200).mean()
+    ma200 = df['Close'].rolling(200).mean()
     fig = plt.figure(figsize=(12, 6))
-    plt.plot(ma100)
-    plt.plot(ma200)
-    plt.plot(df.Close)
+    plt.plot(ma100, label='100MA')
+    plt.plot(ma200, label='200MA')
+    plt.plot(df['Close'], label='Close Price')
+    plt.legend()
     st.pyplot(fig)
 
-    # Prepare training and testing data
-    data_training = pd.DataFrame(df['Close'][0: int(len(df) * 0.70)])
-    data_testing = pd.DataFrame(df['Close'][int(len(df) * 0.70): int(len(df))])
+    # Split data for training and testing (70% train, 30% test)
+    train_len = int(len(df) * 0.70)
+    data_training = df[:train_len]
+    data_testing = df[train_len:]
 
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    data_training_array = scaler.fit_transform(data_training)
+    # Convert training data to PySpark DataFrame
+    data_training_spark = spark.createDataFrame(data_training.reset_index())
+    
+    # Prepare data for scaling
+    def vectorize(column):
+        return Vectors.dense(column)
 
-    # Load the model
-    try:
-        model = load_model('keras_model.h5')
-    except Exception as e:
-        st.error(f"Error loading model: {e}")
-        st.stop()
+    df_spark_with_vectors = df_spark.select(col("Close")).rdd.map(lambda row: vectorize([row[0]])).toDF(["features"])
 
-    # Prepare the input data for prediction
-    past_100_days = data_training.tail(100)
+    # Scaling with MinMaxScaler
+    scaler = MinMaxScaler(inputCol="features", outputCol="scaled_features")
+    scaler_model = scaler.fit(df_spark_with_vectors)
+    scaled_training_data = scaler_model.transform(df_spark_with_vectors)
+
+    # Extract the numpy array for use with the Keras model
+    data_training_array = np.array(scaled_training_data.select("scaled_features").rdd.map(lambda row: row[0][0]).collect()).reshape(-1, 1)
+
+    # Load the pre-trained LSTM model
+    model = load_model('keras_model.h5')
+
+    # Prepare input data for testing
+    past_100_days = data_training[-100:]
     final_df = pd.concat([past_100_days, data_testing], ignore_index=True)
-    input_data = scaler.fit_transform(final_df)
 
+    # Prepare input data for prediction in the required format
+    input_data = scaler_model.transform(spark.createDataFrame(final_df[['Close']].reset_index())).select("scaled_features").rdd.map(lambda row: row[0][0]).collect()
+
+    # Reshape input data for prediction
     x_test = []
-    y_test = []
-    for i in range(100, input_data.shape[0]):
+    for i in range(100, len(input_data)):
         x_test.append(input_data[i-100: i])
-        y_test.append(input_data[i, 0])
 
-    x_test, y_test = np.array(x_test), np.array(y_test)
+    x_test = np.array(x_test)
 
-    # Make predictions
+    # Make predictions using the LSTM model
     y_predicted = model.predict(x_test)
 
     # Inverse scale predictions
-    y_predicted = scaler.inverse_transform(np.column_stack((y_predicted, np.zeros(len(y_predicted)))))[:, 0]
-    y_test = scaler.inverse_transform(np.column_stack((y_test, np.zeros(len(y_test)))))[:, 0]
+    y_predicted_inverse = scaler_model.inverse_transform(spark.createDataFrame(y_predicted, ["Close"]))
+    y_test = np.array(data_testing['Close'])
 
-    # Predicted vs Original
+    # Visualize Predicted vs Original
     st.subheader('Predicted vs Original using LSTM')
     fig2 = plt.figure(figsize=(12, 6))
     plt.plot(y_test, 'b', label='Original Price')
@@ -99,22 +114,20 @@ if st.button('Predict'):
     plt.legend()
     st.pyplot(fig2)
 
-    # Prepare for next 10 days prediction
-    last_100_days = input_data[-100:].reshape((1, 100, 1))  # Reshape for the model
+    # Next 10-day prediction logic
+    last_100_days = np.array(input_data[-100:]).reshape(1, 100, 1)
     next_10_days = []
 
     for _ in range(10):
         next_price = model.predict(last_100_days)
-        next_10_days.append(next_price[0][0])  # Store predicted price
-        next_price_reshaped = next_price.reshape((1, 1, 1))  # Reshape next_price to (1, 1, 1)
-        last_100_days = np.append(last_100_days[:, 1:, :], next_price_reshaped, axis=1)  # Append along the time step dimension
+        next_10_days.append(next_price[0][0])
+        last_100_days = np.append(last_100_days[:, 1:, :], [[next_price]], axis=1)
 
-    # Inverse transform the next 10 days predictions
-    next_10_days = scaler.inverse_transform(np.column_stack((next_10_days, np.zeros(len(next_10_days)))))[:, 0]
+    next_10_days = scaler_model.inverse_transform(spark.createDataFrame(pd.DataFrame(next_10_days), ["Close"]))
 
-    # Create a DataFrame for the next 10 days
-    next_10_days_df = pd.DataFrame(next_10_days, columns=['Predicted Price'])
-    next_10_days_df.index = pd.date_range(start=df.index[-1] + pd.Timedelta(days=1), periods=10, freq='B')  # Business days
+    # Create DataFrame for the next 10 days
+    next_10_days_df = pd.DataFrame(next_10_days.collect(), columns=['Predicted Price'])
+    next_10_days_df.index = pd.date_range(start=df.index[-1] + pd.Timedelta(days=1), periods=10, freq='B')
 
     # Plot the next 10 days prediction
     st.subheader('Next 10 Days Price Prediction based on previous 100 days')
@@ -122,6 +135,5 @@ if st.button('Predict'):
     plt.plot(next_10_days_df.index, next_10_days_df['Predicted Price'], 'g', label='Predicted Price for Next 10 Days')
     plt.xlabel('Date')
     plt.ylabel('Price')
-    plt.title('Next 10 Days Price Prediction')
     plt.legend()
     st.pyplot(fig3)
