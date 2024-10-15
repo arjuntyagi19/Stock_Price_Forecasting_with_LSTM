@@ -83,7 +83,7 @@ if st.button('Predict'):
     fig2 = plt.figure(figsize=(12, 6))
     plt.plot(y_test, 'b', label='Original Price')
     plt.plot(y_predicted, 'r', label='Predicted Price')
-    plt.xlabel('Time')
+    plt.xlabel('Days')
     plt.ylabel("Price")
     plt.legend()
     st.pyplot(fig2)
