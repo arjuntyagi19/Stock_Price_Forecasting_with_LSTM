@@ -12,7 +12,6 @@ from sklearn.preprocessing import MinMaxScaler
 start = '2010-01-01'
 end = datetime.now().strftime('%Y-%m-%d')  # Get today's date
 
-# Streamlit app title and input
 st.title('Stock Price Forecasting with LSTM Model (AIBF project)')
 user_input = st.text_input('Enter any stock name (ticker)', 'TATASTEEL.NS')
 
@@ -62,9 +61,7 @@ if st.button('Predict'):
     # Prepare the input data for prediction
     past_100_days = data_training.tail(100)
     final_df = pd.concat([past_100_days, data_testing], ignore_index=True)
-    
-    # Use the already fitted scaler for transformation
-    input_data = scaler.transform(final_df)  
+    input_data = scaler.fit_transform(final_df)
 
     x_test = []
     y_test = []
