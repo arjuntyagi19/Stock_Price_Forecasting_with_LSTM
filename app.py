@@ -18,7 +18,14 @@ user_input = st.text_input('Enter any stock name (ticker)', 'TATASTEEL.NS')
 # Add an "Enter" button after the input field
 if st.button('Predict'):
     # Download stock data
-    df = pd.DataFrame(yf.download(user_input, start=start, end=end))
+    try:
+        df = pd.DataFrame(yf.download(user_input, start=start, end=end))
+        if df.empty:
+            st.error('No data found for the specified ticker. Please check the ticker symbol.')
+            st.stop()
+    except Exception as e:
+        st.error(f"Error fetching data: {e}")
+        st.stop()
 
     st.subheader('Data from 2010 to today')
     st.write(df.describe())
@@ -56,7 +63,11 @@ if st.button('Predict'):
     data_training_array = scaler.fit_transform(data_training)
 
     # Load the model
-    model = load_model('keras_model.h5')
+    try:
+        model = load_model('keras_model.h5')
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+        st.stop()
 
     # Prepare the input data for prediction
     past_100_days = data_training.tail(100)
@@ -113,4 +124,4 @@ if st.button('Predict'):
     plt.ylabel('Price')
     plt.title('Next 10 Days Price Prediction')
     plt.legend()
-    st.pyplot(fig3)
+    st.pyplot(fig3)
