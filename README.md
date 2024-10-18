@@ -42,6 +42,6 @@ The application generates several key visualizations:
 5. **Next 10 Days Price Prediction**:
    - Displays the predicted stock prices for the next 10 business days based on the last 100 days of data.
      
-   ![Next 10 Days Price Prediction](images/next_10_days_prediction.png)  <!-- Update the image path accordingly -->
+   ![Next 10 Days Price Prediction](images/next_30_days_pred.png)  <!-- Update the image path accordingly -->
 
 
