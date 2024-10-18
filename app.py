@@ -100,6 +100,8 @@ if st.button('Predict'):
     st.pyplot(fig2)
 
     # Prepare for next 30 days prediction
+
+    st.subheader(len(data_testing))
     last_100_days = input_data[-100:].reshape((1, 100, 1))  # Reshape for the model
     temp_input = list(last_100_days.flatten())  # Convert the input data to a list for manipulation
     lst_output = []  # List to store the predicted outputs
@@ -132,11 +134,21 @@ if st.button('Predict'):
 
     # Plot the next 30 days prediction
   # Plot the next 30 days prediction
-    st.subheader('Next 30 Days Price Prediction based on previous 100 days')
-    fig3 = plt.figure(figsize=(12, 6))
-    plt.plot(next_30_days_df.index, next_30_days_df['Predicted Price'], 'g', label='Predicted Price for Next 30 Days')
-    plt.xlabel('Date')
-    plt.ylabel('Price')
-    plt.title('Next 30 Days Price Prediction')
-    plt.legend()
-    st.pyplot(fig3)
+    # Plot the next 30 days prediction
+day_new = np.arange(1, 101)
+day_pred = np.arange(101, 131)
+
+# Flatten the last_100_days array to make it 1D for plotting
+
+# Plot the next 30 days prediction
+previous_100_days = df['Close'].tail(100)
+
+st.subheader('Predicted vs Original using LSTM')
+fig2 = plt.figure(figsize=(12, 6))
+plt.plot(day_new,previous_100_days, 'b', label='Original Price')
+plt.plot(day_pred,next_30_days, 'r', label='Predicted Price')
+plt.xlabel('Days')
+plt.ylabel("Price")
+plt.legend()
+st.pyplot(fig2)
+
