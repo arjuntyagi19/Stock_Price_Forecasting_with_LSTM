@@ -137,8 +137,9 @@ if st.button('Predict'):
 
         st.subheader('30-Day Price Forecast Based on Last 100 Days of Stock Data')
         fig3 = plt.figure(figsize=(12, 6))
+
         # Suppressing the error: Checking if df exists and has data before accessing
-        try:
+        if 'df' in locals() and not df.empty:
             previous_100_days = df['Close'].tail(100)
             plt.plot(day_new, previous_100_days, label="Last 100 Days")
             plt.plot(day_pred, next_30_days, label="Next 30 Days Predictions")
@@ -146,5 +147,8 @@ if st.button('Predict'):
             plt.ylabel('Price')
             plt.legend()
             st.pyplot(fig3)
-        except NameError:
+        else:
             st.warning("Unable to fetch previous 100 days data.")
+
+    except Exception as e:
+        st.warning(f"An error occurred while predicting the next 30 days: {e}")
