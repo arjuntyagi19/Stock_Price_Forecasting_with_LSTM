@@ -86,8 +86,10 @@ if st.button('Predict'):
     y_predicted = model.predict(x_test)
 
     # Inverse scale predictions
-    y_predicted = scaler.inverse_transform(y_predicted)
-    y_test = scaler.inverse_transform(y_test)
+  # Inverse scale predictions
+y_predicted = scaler.inverse_transform(np.column_stack((y_predicted, np.zeros(len(y_predicted)))))[:, 0]
+y_test = scaler.inverse_transform(np.column_stack((y_test, np.zeros(len(y_test)))))[:, 0]
+
 
     # Predicted vs Original
     st.subheader('Predicted vs Original using LSTM')
