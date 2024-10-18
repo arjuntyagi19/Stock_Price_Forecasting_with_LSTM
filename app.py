@@ -86,10 +86,8 @@ if st.button('Predict'):
     y_predicted = model.predict(x_test)
 
     # Inverse scale predictions
-  # Inverse scale predictions
     y_predicted = scaler.inverse_transform(np.column_stack((y_predicted, np.zeros(len(y_predicted)))))[:, 0]
     y_test = scaler.inverse_transform(np.column_stack((y_test, np.zeros(len(y_test)))))[:, 0]
-
 
     # Predicted vs Original
     st.subheader('Predicted vs Original using LSTM')
@@ -101,29 +99,43 @@ if st.button('Predict'):
     plt.legend()
     st.pyplot(fig2)
 
-    # Prepare for next 10 days prediction
+    # Prepare for next 30 days prediction
     last_100_days = input_data[-100:].reshape((1, 100, 1))  # Reshape for the model
-    next_10_days = []
+    temp_input = list(last_100_days.flatten())  # Convert the input data to a list for manipulation
+    lst_output = []  # List to store the predicted outputs
 
-    for _ in range(10):
-        next_price = model.predict(last_100_days)
-        next_10_days.append(next_price[0][0])  # Store predicted price
-        next_price_reshaped = next_price.reshape((1, 1, 1))  # Reshape next_price to (1, 1, 1)
-        last_100_days = np.append(last_100_days[:, 1:, :], next_price_reshaped, axis=1)  # Append along the time step dimension
+    n_steps = 100
+    i = 0
 
-    # Inverse transform the next 10 days predictions
-    next_10_days = scaler.inverse_transform(np.column_stack((next_10_days, np.zeros(len(next_10_days)))))[:, 0]
+    while i < 30:
+        if len(temp_input) > 100:
+            x_input = np.array(temp_input[1:])  # Drop the first element and use the rest
+            x_input = x_input.reshape((1, n_steps, 1))  # Reshape for the model
+            yhat = model.predict(x_input, verbose=0)  # Predict next step
+            temp_input.extend(yhat[0].tolist())  # Add prediction to the input
+            temp_input = temp_input[1:]  # Remove the first element
+            lst_output.extend(yhat.tolist())  # Add prediction to the output list
+            i += 1
+        else:
+            x_input = np.array(temp_input).reshape((1, n_steps, 1))  # Reshape the input
+            yhat = model.predict(x_input, verbose=0)  # Predict next step
+            temp_input.extend(yhat[0].tolist())  # Add prediction to the input
+            lst_output.extend(yhat.tolist())  # Add prediction to the output list
+            i += 1
 
-    # Create a DataFrame for the next 10 days
-    next_10_days_df = pd.DataFrame(next_10_days, columns=['Predicted Price'])
-    next_10_days_df.index = pd.date_range(start=df.index[-1] + pd.Timedelta(days=1), periods=10, freq='B')  # Business days
+    # Inverse transform the next 30 days predictions
+    next_30_days = scaler.inverse_transform(np.column_stack((lst_output, np.zeros(len(lst_output)))))[:, 0]
 
-    # Plot the next 10 days prediction
-    st.subheader('Next 10 Days Price Prediction based on previous 100 days')
+    # Create a DataFrame for the next 30 days
+    next_30_days_df = pd.DataFrame(next_30_days, columns=['Predicted Price'])
+    next_30_days_df.index = pd.date_range(start=df.index[-1] + pd.Timedelta(days=1), periods=30, freq='B')  # Business days
+
+    # Plot the next 30 days prediction
+    st.subheader('Next 30 Days Price Prediction based on previous 100 days')
     fig3 = plt.figure(figsize=(12, 6))
-    plt.plot(next_10_days_df.index, next_10_days_df['Predicted Price'], 'g', label='Predicted Price for Next 10 Days')
+    plt.plot(next_30_days_df.index, next_30_days_df['Predicted Price'], 'g', label='Predicted Price for Next 30 Days')
     plt.xlabel('Date')
     plt.ylabel('Price')
-    plt.title('Next 10 Days Price Prediction')
+    plt.title('Next 30 Days Price Prediction')
     plt.legend()
     st.pyplot(fig3)
