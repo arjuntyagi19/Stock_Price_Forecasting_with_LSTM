@@ -100,56 +100,51 @@ if st.button('Predict'):
     st.pyplot(fig2)
 
     # Prepare for next 30 days prediction
+    try:
+        last_100_days = input_data[-100:].reshape((1, 100, 1))  # Reshape for the model
+        temp_input = list(last_100_days.flatten())  # Convert the input data to a list for manipulation
+        lst_output = []  # List to store the predicted outputs
 
-    last_100_days = input_data[-100:].reshape((1, 100, 1))  # Reshape for the model
-    temp_input = list(last_100_days.flatten())  # Convert the input data to a list for manipulation
-    lst_output = []  # List to store the predicted outputs
+        n_steps = 100
+        i = 0
 
-    n_steps = 100
-    i = 0
+        while i < 30:
+            if len(temp_input) > 100:
+                x_input = np.array(temp_input[1:])  # Drop the first element and use the rest
+                x_input = x_input.reshape((1, n_steps, 1))  # Reshape for the model
+                yhat = model.predict(x_input, verbose=0)  # Predict next step
+                temp_input.extend(yhat[0].tolist())  # Add prediction to the input
+                temp_input = temp_input[1:]  # Remove the first element
+                lst_output.extend(yhat.tolist())  # Add prediction to the output list
+                i += 1
+            else:
+                x_input = np.array(temp_input).reshape((1, n_steps, 1))  # Reshape the input
+                yhat = model.predict(x_input, verbose=0)  # Predict next step
+                temp_input.extend(yhat[0].tolist())  # Add prediction to the input
+                lst_output.extend(yhat.tolist())  # Add prediction to the output list
+                i += 1
 
-    while i < 30:
-        if len(temp_input) > 100:
-            x_input = np.array(temp_input[1:])  # Drop the first element and use the rest
-            x_input = x_input.reshape((1, n_steps, 1))  # Reshape for the model
-            yhat = model.predict(x_input, verbose=0)  # Predict next step
-            temp_input.extend(yhat[0].tolist())  # Add prediction to the input
-            temp_input = temp_input[1:]  # Remove the first element
-            lst_output.extend(yhat.tolist())  # Add prediction to the output list
-            i += 1
-        else:
-            x_input = np.array(temp_input).reshape((1, n_steps, 1))  # Reshape the input
-            yhat = model.predict(x_input, verbose=0)  # Predict next step
-            temp_input.extend(yhat[0].tolist())  # Add prediction to the input
-            lst_output.extend(yhat.tolist())  # Add prediction to the output list
-            i += 1
+        # Inverse transform the next 30 days predictions
+        next_30_days = scaler.inverse_transform(np.column_stack((lst_output, np.zeros(len(lst_output)))))[:, 0]
 
-    # Inverse transform the next 30 days predictions
-    next_30_days = scaler.inverse_transform(np.column_stack((lst_output, np.zeros(len(lst_output)))))[:, 0]
+        # Create a DataFrame for the next 30 days
+        next_30_days_df = pd.DataFrame(next_30_days, columns=['Predicted Price'])
+        next_30_days_df.index = pd.date_range(start=df.index[-1] + pd.Timedelta(days=1), periods=30, freq='B')  # Business days
 
-    # Create a DataFrame for the next 30 days
-    next_30_days_df = pd.DataFrame(next_30_days, columns=['Predicted Price'])
-    next_30_days_df.index = pd.date_range(start=df.index[-1] + pd.Timedelta(days=1), periods=30, freq='B')  # Business days
+        # Plot the next 30 days prediction
+        day_new = np.arange(1, 101)
+        day_pred = np.arange(101, 131)
 
-    # Plot the next 30 days prediction
-  # Plot the next 30 days prediction
-   # Plot the next 30 days prediction
-day_new = np.arange(1, 101)
-day_pred = np.arange(101, 131)
-try:
-    previous_100_days = df['Close'].tail(100)
-except NameError:
-    previous_100_days = None 
-
-st.subheader('30-Day Price Forecast Based on Last 100 Days of Stock Data')
-fig3 = plt.figure(figsize=(12, 6))
-previous_100_days = df['Close'].tail(100)
-plt.plot(day_new, previous_100_days,label="Last 100 Days")
-plt.plot(day_pred, next_30_days, label="Next 30 Days Predictions")
-plt.xlabel('Days')
-plt.ylabel('Price')
-plt.legend()
-st.pyplot(fig3)
-
-
- 
+        st.subheader('30-Day Price Forecast Based on Last 100 Days of Stock Data')
+        fig3 = plt.figure(figsize=(12, 6))
+        # Suppressing the error: Checking if df exists and has data before accessing
+        try:
+            previous_100_days = df['Close'].tail(100)
+            plt.plot(day_new, previous_100_days, label="Last 100 Days")
+            plt.plot(day_pred, next_30_days, label="Next 30 Days Predictions")
+            plt.xlabel('Days')
+            plt.ylabel('Price')
+            plt.legend()
+            st.pyplot(fig3)
+        except NameError:
+            st.warning("Unable to fetch previous 100 days data.")
