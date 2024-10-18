@@ -136,7 +136,10 @@ if st.button('Predict'):
    # Plot the next 30 days prediction
 day_new = np.arange(1, 101)
 day_pred = np.arange(101, 131)
-
+try:
+    previous_100_days = df['Close'].tail(100)
+except NameError:
+    previous_100_days = None 
 
 st.subheader('30-Day Price Forecast Based on Last 100 Days of Stock Data')
 fig3 = plt.figure(figsize=(12, 6))
