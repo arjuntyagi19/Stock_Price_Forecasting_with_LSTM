@@ -140,7 +140,7 @@ day_pred = np.arange(101, 131)
 # Flatten the last_100_days array to make it 1D for plotting
 last_100_days_flat = last_100_days.flatten()
 
-st.subheader('Predicted vs Original using LSTM')
+st.subheader('30-Day Price Forecast Based on Last 100 Days of Stock Data')
 fig3 = plt.figure(figsize=(12, 6))
 previous_100_days = df['Close'].tail(100)
 plt.plot(day_new, previous_100_days,label="Last 100 Days")
