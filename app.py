@@ -131,11 +131,30 @@ if st.button('Predict'):
     next_30_days_df.index = pd.date_range(start=df.index[-1] + pd.Timedelta(days=1), periods=30, freq='B')  # Business days
 
     # Plot the next 30 days prediction
-    st.subheader('Next 30 Days Price Prediction based on previous 100 days')
-    fig3 = plt.figure(figsize=(12, 6))
-    plt.plot(next_30_days_df.index, next_30_days_df['Predicted Price'], 'g', label='Predicted Price for Next 30 Days')
-    plt.xlabel('Date')
-    plt.ylabel('Price')
-    plt.title('Next 30 Days Price Prediction')
-    plt.legend()
-    st.pyplot(fig3)
+   # Prepare the plot for the last 100 days and next 30 days predictions
+st.subheader('Stock Price Prediction with Next 30 Days Forecast')
+
+# Dynamically determine the last 100 days from test_data
+last_100_days_index = len(test_data) - 100  # Get the index for the last 100 days
+
+# Create arrays for the last 100 days and the next 30 days
+day_new = np.arange(1, 101)  # Last 100 days
+day_pred = np.arange(101, 131)  # Next 30 days
+
+# Plotting the last 100 days and next 30 days predictions
+fig4 = plt.figure(figsize=(12, 6))
+
+# Plot last 100 days (dynamically from test_data)
+plt.plot(day_new, scaler.inverse_transform(test_data[last_100_days_index:].reshape(-1, 1)), label='Original Last 100 Days')
+
+# Plot next 30 days predictions (lst_output)
+plt.plot(day_pred, scaler.inverse_transform(lst_output), label='Predicted Next 30 Days')
+
+plt.xlabel('Days')
+plt.ylabel('Price')
+plt.title('Stock Price Prediction for Next 30 Days')
+plt.legend()
+
+# Display the plot in Streamlit
+st.pyplot(fig4)
+
