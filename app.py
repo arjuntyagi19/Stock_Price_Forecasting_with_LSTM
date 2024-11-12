@@ -32,8 +32,12 @@ if st.button('Predict'):
     st.subheader('Data from 2010 to today')
     st.write(df.describe())
 
-    current_closing_price = df['Close'].iloc[-1]
-    st.write(f"**Current Closing Price of {user_input}:** ${current_closing_price:.2f}")
+    # Check if current closing price is valid
+    if not np.isnan(current_closing_price):
+        st.write(f"**Current Closing Price of {user_input}:** ${current_closing_price:.2f}")
+    else:
+        st.warning("Unable to retrieve the current closing price. Please check if the data is available.")
+
 
 
 
