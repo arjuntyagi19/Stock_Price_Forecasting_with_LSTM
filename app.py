@@ -32,16 +32,6 @@ if st.button('Predict'):
     st.subheader('Data from 2010 to today')
     st.write(df.describe())
 
-    # Check if current closing price is valid
-    if not np.isnan(current_closing_price):
-        st.write(f"**Current Closing Price of {user_input}:** ${current_closing_price:.2f}")
-    else:
-        st.warning("Unable to retrieve the current closing price. Please check if the data is available.")
-
-
-
-
-
     
     # Visualizations
     st.subheader('Closing Price vs Time chart')
