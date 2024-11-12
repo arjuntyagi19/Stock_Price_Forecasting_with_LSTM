@@ -32,8 +32,10 @@ if st.button('Predict'):
     st.subheader('Data from 2010 to today')
     st.write(df.describe())
 
-current_closing_price = df['Close'].iloc[-1]
-st.write(f"**Current Closing Price of {user_input}:** ${current_closing_price:.2f}")
+    current_closing_price = df['Close'].iloc[-1]
+    st.write(f"**Current Closing Price of {user_input}:** ${current_closing_price:.2f}")
+
+
 
 
     
