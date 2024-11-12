@@ -15,6 +15,9 @@ end = datetime.now().strftime('%Y-%m-%d')  # Get today's date
 st.title('Stock Price Forecasting with LSTM Model (AIBF project)')
 user_input = st.text_input('Enter any stock name (ticker)', 'AAPL')
 
+  current_closing_price = df['Close'].iloc[-1]
+    st.write(f"**Current Closing Price of {user_input}:** ${current_closing_price:.2f}")
+
 # Add an "Enter" button after the input field
 if st.button('Predict'):
     # Download stock data
