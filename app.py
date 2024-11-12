@@ -30,9 +30,6 @@ if st.button('Predict'):
     st.subheader('Data from 2010 to today')
     st.write(df.describe())
 
-    # Display the current closing price
-    current_close = df['Close'].iloc[-1]
-    st.subheader(f'Current Closing Price: {current_close:.2f}')
 
     # Visualizations
     st.subheader('Closing Price vs Time chart')
