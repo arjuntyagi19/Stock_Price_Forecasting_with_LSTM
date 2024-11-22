@@ -44,4 +44,8 @@ The application generates several key visualizations:
      
    ![Next 10 Days Price Prediction](images/next_30_days_pred.png)  <!-- Update the image path accordingly -->
 
+6.Sentiment vs closing price for Tatasteel
+![Next 10 Days Price Prediction](images/Tatasteel_sentiment.png)
+
+
 
