@@ -1,5 +1,5 @@
 # Stock_Price_Forecasting_with_LSTM
-Check out the live demo: [Stock Price Forecasting with LSTM](https://stock-price-forecasting-with-lstm.streamlit.app/)
+Check out the live demo: [Stock Price Forecasting with LSTM_and_Sentiment_analysis](https://stock-price-forecasting-with-lstm.streamlit.app/)
 ## Project Overview
 
 This project leverages an LSTM model to forecast stock prices using historical data. The application retrieves live stock data from Yahoo Finance and predicts future prices based on past performance. It features various visualizations to aid in analyzing the stock's historical trends and predicted future movements.
