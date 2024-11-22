@@ -8,3 +8,5 @@ streamlit
 scikit-learn
 pyspark
 tweepy
+textblob
+
