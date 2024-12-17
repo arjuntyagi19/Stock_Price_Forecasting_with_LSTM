@@ -1,4 +1,4 @@
-# Stock_Price_Forecasting_with_LSTM_and_sentiment_analysis
+# Stock_Price_Forecasting_with_LSTM
 Check out the live demo: [Stock Price Forecasting with LSTM](https://stock-price-forecasting-with-lstm.streamlit.app/)
 ## Project Overview
 
@@ -44,7 +44,7 @@ The application generates several key visualizations:
      
    ![Next 10 Days Price Prediction](images/next_30_days_pred.png)  <!-- Update the image path accordingly -->
 
-6.Sentiment vs closing price for Tatasteel
+
 
 
 ![Next 10 Days Price Prediction](images/Tatasteel_sentiment.jpg)
